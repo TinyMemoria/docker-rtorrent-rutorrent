@@ -242,8 +242,8 @@ RUN apk --update --no-cache add \
     util-linux \
     zip
     
-RUN pip3 install --upgrade --break-system-packages pip
-RUN pip3 install --break-system-packages cfscrape cloudscraper 
+RUN pip3 install --upgrade pip
+RUN pip3 install cfscrape cloudscraper 
 RUN addgroup -g ${PGID} rtorrent 
 RUN adduser -D -H -u ${PUID} -G rtorrent -s /bin/sh rtorrent 
 RUN curl --version 
