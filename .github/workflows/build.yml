@@ -1,12 +1,4 @@
-name: build
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
-permissions:
-  contents: read
-  packages: write # Required for GHCR push
+name: build-armv7
 
 on:
   push:
@@ -19,39 +11,42 @@ on:
   pull_request:
     paths-ignore:
       - '**.md'
-  workflow_dispatch: {} # Adds the manual "Run workflow" button
+  workflow_dispatch: # Adds "Run workflow" button
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   build:
-    uses: crazy-max/.github/.github/workflows/bake-distribute-mp.yml@0acc187b016a2946786f201397bbcfb2c530ffc7
-    permissions:
-      contents: read
-      packages: write
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          -
-            image: ghcr.io/tinymemoria/rtorrent-rutorrent
-            login-registry: ghcr.io
-            login-username: ${{ github.repository_owner }}
-            login-secret-key: GITHUB_TOKEN
-    with:
-      target: image-all
-      push: ${{ github.event_name != 'pull_request' }}
-      cache: true
-      cache-scope: build
-      platforms: linux/arm/v7
-      meta-image: ${{ matrix.image }}
-      meta-tags: |
-        type=match,pattern=(.*)-r,group=1
-        type=ref,event=pr
-        type=edge
-      meta-labels: |
-        org.opencontainers.image.title=rTorrent and ruTorrent
-        org.opencontainers.image.description=rTorrent and ruTorrent
-        org.opencontainers.image.vendor=tinymemoria
-      login-registry: ${{ matrix.login-registry }}
-      login-username: ${{ matrix.login-username }}
-    secrets:
-      login-password: ${{ secrets[matrix.login-secret-key] }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU (for ARM emulation)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image (armv7)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/arm/v7
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ghcr.io/tinymemoria/rtorrent-rutorrent:latest
+            ghcr.io/tinymemoria/rtorrent-rutorrent:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.title=rTorrent and ruTorrent
+            org.opencontainers.image.description=rTorrent and ruTorrent
+            org.opencontainers.image.vendor=tinymemoria
