@@ -42,7 +42,8 @@ jobs:
           source: .
           targets: image-local
           set: |
-            *.cache-from=type=gha,scope=build-linux-amd64
+            *.platform=linux/arm/v7
+            *.cache-from=type=gha,scope=build-linux-armv7
         env:
           DEFAULT_TAG: ${{ env.BUILD_TAG }}
       -
