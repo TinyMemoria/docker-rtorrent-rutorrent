@@ -240,13 +240,14 @@ RUN apk --update --no-cache add \
     udns \
     unzip \
     util-linux \
-    zip \
-  && pip3 install --upgrade --break-system-packages pip \
-  && pip3 install --break-system-packages cfscrape cloudscraper \
-  && addgroup -g ${PGID} rtorrent \
-  && adduser -D -H -u ${PUID} -G rtorrent -s /bin/sh rtorrent \
-  && curl --version \
-  && rm -rf /tmp/*
+    zip
+    
+RUN pip3 install --upgrade --break-system-packages pip
+RUN pip3 install --break-system-packages cfscrape cloudscraper 
+RUN addgroup -g ${PGID} rtorrent 
+RUN adduser -D -H -u ${PUID} -G rtorrent -s /bin/sh rtorrent 
+RUN curl --version 
+RUN rm -rf /tmp/*
 
 COPY rootfs /
 
