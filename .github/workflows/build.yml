@@ -4,16 +4,14 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
 permissions:
   contents: read
+  packages: write # Required for GHCR push
 
 on:
-  schedule:
-    - cron: '0 8 */6 * *' # every 6 days to keep cache
   push:
     branches:
-      - 'master'
+      - master
     tags:
       - '*'
     paths-ignore:
@@ -21,26 +19,20 @@ on:
   pull_request:
     paths-ignore:
       - '**.md'
+  workflow_dispatch: {} # Adds the manual "Run workflow" button
 
 jobs:
   build:
     uses: crazy-max/.github/.github/workflows/bake-distribute-mp.yml@0acc187b016a2946786f201397bbcfb2c530ffc7
     permissions:
-      # same as global permissions
       contents: read
-      # required to push to GHCR
       packages: write
     strategy:
       fail-fast: false
       matrix:
         include:
           -
-            image: crazymax/rtorrent-rutorrent
-            login-registry: docker.io
-            login-username: crazymax
-            login-secret-key: DOCKER_PASSWORD
-          -
-            image: ghcr.io/crazy-max/rtorrent-rutorrent
+            image: ghcr.io/tinymemoria/rtorrent-rutorrent
             login-registry: ghcr.io
             login-username: ${{ github.repository_owner }}
             login-secret-key: GITHUB_TOKEN
@@ -49,6 +41,7 @@ jobs:
       push: ${{ github.event_name != 'pull_request' }}
       cache: true
       cache-scope: build
+      platforms: linux/arm/v7
       meta-image: ${{ matrix.image }}
       meta-tags: |
         type=match,pattern=(.*)-r,group=1
@@ -57,7 +50,7 @@ jobs:
       meta-labels: |
         org.opencontainers.image.title=rTorrent and ruTorrent
         org.opencontainers.image.description=rTorrent and ruTorrent
-        org.opencontainers.image.vendor=CrazyMax
+        org.opencontainers.image.vendor=tinymemoria
       login-registry: ${{ matrix.login-registry }}
       login-username: ${{ matrix.login-username }}
     secrets:
