@@ -89,8 +89,8 @@ RUN apk --update --no-cache add \
     nghttp2-dev \
     openssl-dev \
     pcre-dev \
-    php83-dev \
-    php83-pear \
+    php81-dev \
+    php81-pear \
     tar \
     tree \
     udns-dev \
@@ -157,13 +157,13 @@ WORKDIR /usr/local/src/geoip2-phpext
 COPY --from=src-geoip2-phpext /src .
 RUN <<EOT
   set -e
-  phpize83
+  phpize81
   ./configure
   make
   make install
 EOT
-RUN mkdir -p ${DIST_PATH}/usr/lib/php83/modules
-RUN cp -f /usr/lib/php83/modules/geoip.so ${DIST_PATH}/usr/lib/php83/modules/
+RUN mkdir -p ${DIST_PATH}/usr/lib/php81/modules
+RUN cp -f /usr/lib/php81/modules/geoip.so ${DIST_PATH}/usr/lib/php81/modules/
 RUN tree ${DIST_PATH}
 
 WORKDIR /usr/local/src/dump-torrent
@@ -216,21 +216,21 @@ RUN apk --update --no-cache add \
     nginx-mod-http-dav-ext \
     nginx-mod-http-geoip2 \
     openssl \
-    php83 \
-    php83-bcmath \
-    php83-ctype \
-    php83-curl \
-    php83-dom \
-    php83-fileinfo \
-    php83-fpm \
-    php83-mbstring \
-    php83-openssl \
-    php83-phar \
-    php83-posix \
-    php83-session \
-    php83-sockets \
-    php83-xml \
-    php83-zip \
+    php81 \
+    php81-bcmath \
+    php81-ctype \
+    php81-curl \
+    php81-dom \
+    php81-fileinfo \
+    php81-fpm \
+    php81-mbstring \
+    php81-openssl \
+    php81-phar \
+    php81-posix \
+    php81-session \
+    php81-sockets \
+    php81-xml \
+    php81-zip \
     python3 \
     py3-pip \
     shadow \
